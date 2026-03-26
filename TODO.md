@@ -4,10 +4,10 @@
 
 ## Этап 1: Инициализация проекта и инфраструктуры Оркестратора
 
-- [ ] **1.1. Настройка репозитория и окружения**
-  - Инициализировать Python-проект (рекомендуется `uv` или `poetry`).
-  - Установить зависимости: `fastapi`, `uvicorn`, `temporalio`, `langgraph`, `pydantic`, `httpx` (для HTTP-вызовов к Player/Registry), `opensearch-py`.
-  - Настроить линтеры и форматтеры (Ruff, Mypy, Black).
+- [x] **1.1. Настройка репозитория и окружения**
+  - [x] Инициализировать Python-проект (рекомендуется `uv` или `poetry`).
+  - [x] Установить зависимости: `fastapi`, `uvicorn`, `temporalio`, `langgraph`, `pydantic`, `httpx` (для HTTP-вызовов к Player/Registry), `opensearch-py`.
+  - [x] Настроить линтеры и форматтеры (Ruff, Mypy, Black).
 - [ ] **1.2. Подготовка инфраструктуры для разработки (docker-compose)**
   - Добавить Temporal Server и Temporal UI.
   - Добавить OpenSearch для локального тестирования семантического поиска.
