@@ -15,7 +15,7 @@
 
 ## Этап 2: Интеграция с Реестром Агентов (Registry Client)
 
-- [ ] **2.1. Pydantic-модели (Контракты)**
+- [x] **2.1. Pydantic-модели (Контракты)**
   - Описать `AgentManifest` (input_schema, output_schema, nodes, edges, tools, dependencies).
   - Описать контракт ответа от OpenSearch/Registry API.
 - [ ] **2.2. Клиент семантического поиска**
