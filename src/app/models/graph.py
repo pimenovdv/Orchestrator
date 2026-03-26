@@ -1,5 +1,12 @@
 from pydantic import BaseModel, Field
-from typing import List, Optional, Literal
+from typing import List, Optional
+from enum import StrEnum
+
+
+class NodeType(StrEnum):
+    REASONING = "reasoning"
+    TOOL_EXECUTION = "tool_execution"
+    DATA_TRANSFORMATION = "data_transformation"
 
 
 class EdgeCondition(BaseModel):
@@ -18,9 +25,7 @@ class Edge(BaseModel):
 
 class Node(BaseModel):
     id: str = Field(description="Уникальный ID узла")
-    type: Literal["reasoning", "tool_execution", "data_transformation"] = Field(
-        description="Тип узла (логика выполнения)"
-    )
+    type: NodeType = Field(description="Тип узла (логика выполнения)")
     tool_name: Optional[str] = Field(
         default=None,
         description="Имя инструмента (обязательно для типа tool_execution)",

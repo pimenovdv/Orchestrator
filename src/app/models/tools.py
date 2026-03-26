@@ -1,11 +1,25 @@
 from pydantic import BaseModel, Field
-from typing import Dict, Any, Optional, Literal
+from typing import Dict, Any, Optional
+from enum import StrEnum
+
+
+class HttpMethod(StrEnum):
+    GET = "GET"
+    POST = "POST"
+    PATCH = "PATCH"
+    PUT = "PUT"
+    DELETE = "DELETE"
+
+
+class ToolType(StrEnum):
+    BUILTIN = "builtin"
+    REST_API = "rest_api"
+    MCP_SERVER = "mcp_server"
+    KAFKA = "kafka"
 
 
 class RestApiConfig(BaseModel):
-    method: Literal["GET", "POST", "PATCH", "PUT", "DELETE"] = Field(
-        description="HTTP метод (GET, POST, PATCH и др.)"
-    )
+    method: HttpMethod = Field(description="HTTP метод (GET, POST, PATCH и др.)")
     base_url: str = Field(description="Базовый URL")
     headers: Optional[Dict[str, str]] = Field(
         default=None, description="Конфигурация заголовков"
@@ -36,9 +50,7 @@ class BuiltinConfig(BaseModel):
 
 class Tool(BaseModel):
     name: str = Field(description="Имя инструмента")
-    type: Literal["rest_api", "mcp_server", "kafka", "builtin"] = Field(
-        description="Тип инструмента"
-    )
+    type: ToolType = Field(description="Тип инструмента")
     description: Optional[str] = Field(default=None, description="Описание инструмента")
     rest_api_config: Optional[RestApiConfig] = Field(
         default=None, description="Конфигурация для REST API инструмента"

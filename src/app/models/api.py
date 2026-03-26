@@ -1,7 +1,15 @@
 from pydantic import BaseModel, Field
-from typing import Dict, Any, Literal
+from typing import Dict, Any
+from enum import StrEnum
 
 from app.models.manifest import AgentManifest, ExecutionLimits
+
+
+class ExecutionStatus(StrEnum):
+    SUCCESS = "success"
+    FAILED = "failed"
+    TIMEOUT = "timeout"
+    ERROR = "error"
 
 
 class ExecuteRequest(BaseModel):
@@ -19,9 +27,7 @@ class ExecuteRequest(BaseModel):
 
 
 class ExecuteResponse(BaseModel):
-    status: Literal["success", "failed", "timeout", "error"] = Field(
-        description="Статус выполнения запроса"
-    )
+    status: ExecutionStatus = Field(description="Статус выполнения запроса")
     output_data: Dict[str, Any] = Field(description="Результат работы агента")
     telemetry: Dict[str, Any] = Field(
         description="Телеметрия (потребленные токены, время выполнения и т.д.)"
