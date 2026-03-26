@@ -2,7 +2,7 @@ import json
 import logging
 from elasticsearch import Elasticsearch
 from elasticsearch.exceptions import ConnectionError, ApiError
-from agent_models import AgentIndexDocument
+from app.models.agent import AgentIndexDocument
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
