@@ -8,7 +8,7 @@
   - [x] Инициализировать Python-проект (рекомендуется `uv` или `poetry`).
   - [x] Установить зависимости: `fastapi`, `uvicorn`, `temporalio`, `langgraph`, `pydantic`, `httpx` (для HTTP-вызовов к Player/Registry), `opensearch-py`.
   - [x] Настроить линтеры и форматтеры (Ruff, Mypy, Black).
-- [ ] **1.2. Подготовка инфраструктуры для разработки (docker-compose)**
+- [x] **1.2. Подготовка инфраструктуры для разработки (docker-compose)**
   - Добавить Temporal Server и Temporal UI.
   - Добавить OpenSearch для локального тестирования семантического поиска.
   - Добавить Redis (если потребуется кэширование манифестов).

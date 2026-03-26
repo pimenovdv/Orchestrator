@@ -1,0 +1,70 @@
+
+services:
+  # Temporal Server Services
+  cassandra:
+    image: cassandra:4.0
+    ports:
+      - "9042:9042"
+    networks:
+      - temporal-network
+
+  temporal:
+    image: temporalio/auto-setup:1.22.4
+    ports:
+      - "7233:7233"
+    environment:
+      - DB=cassandra
+      - CASSANDRA_SEEDS=cassandra
+      - DYNAMIC_CONFIG_FILE_PATH=config/dynamicconfig/development-cass.yaml
+    depends_on:
+      - cassandra
+    networks:
+      - temporal-network
+
+  temporal-ui:
+    image: temporalio/ui:2.21.3
+    ports:
+      - "8080:8080"
+    environment:
+      - TEMPORAL_ADDRESS=temporal:7233
+      - TEMPORAL_CORS_ORIGINS=http://localhost:3000
+    depends_on:
+      - temporal
+    networks:
+      - temporal-network
+
+  # OpenSearch
+  opensearch:
+    image: opensearchproject/opensearch:2.11.1
+    environment:
+      - discovery.type=single-node
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=Admin123!@#
+    ports:
+      - "9200:9200"
+      - "9600:9600"
+    networks:
+      - temporal-network
+
+  opensearch-dashboards:
+    image: opensearchproject/opensearch-dashboards:2.11.1
+    ports:
+      - "5601:5601"
+    environment:
+      OPENSEARCH_HOSTS: '["https://opensearch:9200"]'
+      OPENSEARCH_SSL_VERIFICATIONMODE: none
+    depends_on:
+      - opensearch
+    networks:
+      - temporal-network
+
+  # Redis
+  redis:
+    image: redis:7.2
+    ports:
+      - "6379:6379"
+    networks:
+      - temporal-network
+
+networks:
+  temporal-network:
+    driver: bridge
