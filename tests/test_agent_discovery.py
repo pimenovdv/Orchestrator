@@ -6,18 +6,18 @@ from app.models.registry import RegistrySearchResponse
 
 
 @pytest.fixture
-def mock_opensearch():
+def mock_opensearch() -> AsyncMock:
     return AsyncMock(spec=AsyncOpenSearch)
 
 
 @pytest.fixture
-def agent_discovery_client(mock_opensearch):
+def agent_discovery_client(mock_opensearch: AsyncMock) -> AgentDiscoveryClient:
     client = AgentDiscoveryClient(opensearch_client=mock_opensearch)
     return client
 
 
 @pytest.mark.asyncio
-async def test_get_embedding_fallback(agent_discovery_client):
+async def test_get_embedding_fallback(agent_discovery_client: AgentDiscoveryClient) -> None:
     # Ensure OPENAI_API_KEY is not set
     with patch.dict("os.environ", {}, clear=True):
         agent_discovery_client.openai_api_key = None
@@ -29,7 +29,7 @@ async def test_get_embedding_fallback(agent_discovery_client):
 
 
 @pytest.mark.asyncio
-async def test_get_embedding_with_api_key(agent_discovery_client):
+async def test_get_embedding_with_api_key(agent_discovery_client: AgentDiscoveryClient) -> None:
     agent_discovery_client.openai_api_key = "test_key"
     mock_response = MagicMock()
     mock_response.json.return_value = {"data": [{"embedding": [0.1, 0.2, 0.3]}]}
@@ -42,9 +42,9 @@ async def test_get_embedding_with_api_key(agent_discovery_client):
 
 
 @pytest.mark.asyncio
-async def test_search_candidates(agent_discovery_client, mock_opensearch):
+async def test_search_candidates(agent_discovery_client: AgentDiscoveryClient, mock_opensearch: AsyncMock) -> None:
     # Mock get_embedding
-    agent_discovery_client.get_embedding = AsyncMock(return_value=[0.1] * 1536)
+    agent_discovery_client.get_embedding = AsyncMock(return_value=[0.1] * 1536)  # type: ignore
 
     # Mock OpenSearch response
     mock_response = {
