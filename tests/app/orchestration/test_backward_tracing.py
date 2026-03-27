@@ -1,7 +1,6 @@
 import pytest
 from typing import Dict, Any, List
 
-from app.clients.agent_discovery import AgentDiscoveryClient
 from app.models.agent import AgentIndexDocument
 from app.models.manifest import AgentManifest, Prompts, ExecutionLimits
 from app.models.graph import MicroGraph
