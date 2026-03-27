@@ -1,8 +1,10 @@
 import os
 import httpx
-from typing import List
+from typing import List, Optional
 from opensearchpy import AsyncOpenSearch
+from opensearchpy.exceptions import NotFoundError
 from app.models.registry import RegistrySearchResponse
+from app.models.agent import AgentIndexDocument
 
 
 class AgentDiscoveryClient:
@@ -66,3 +68,25 @@ class AgentDiscoveryClient:
             index=self.index_name, body=search_query
         )
         return RegistrySearchResponse.model_validate(response)
+
+    async def get_agent_by_id(self, agent_id: str) -> Optional[AgentIndexDocument]:
+        """
+        Получает агента по его agent_id из OpenSearch.
+        """
+        search_query = {
+            "query": {
+                "term": {
+                    "agent_id": agent_id
+                }
+            }
+        }
+        try:
+            response = await self.opensearch.search(
+                index=self.index_name, body=search_query, size=1
+            )
+            hits = response.get("hits", {}).get("hits", [])
+            if not hits:
+                return None
+            return AgentIndexDocument.model_validate(hits[0]["_source"])
+        except NotFoundError:
+            return None
