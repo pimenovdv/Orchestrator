@@ -14,7 +14,7 @@ def create_mock_agent(agent_id: str, dependencies: List[str]) -> AgentIndexDocum
         prompts=Prompts(system_instructions="You are a mock agent."),
         tools=[],
         graph=MicroGraph(nodes=[], edges=[]),
-        execution_limits=ExecutionLimits()
+        execution_limits=ExecutionLimits(),
     )
     return AgentIndexDocument(
         agent_id=agent_id,
@@ -22,7 +22,7 @@ def create_mock_agent(agent_id: str, dependencies: List[str]) -> AgentIndexDocum
         description=f"Description for {agent_id}",
         capabilities_embedding=[0.0] * 1536,
         dependencies=dependencies,
-        manifest=manifest
+        manifest=manifest,
     )
 
 
@@ -55,11 +55,13 @@ async def test_linear_dependency() -> None:
     agent_b = create_mock_agent("B", ["C"])
     agent_c = create_mock_agent("C", [])
 
-    mock_client = MockAgentDiscoveryClient({
-        "A": agent_a,
-        "B": agent_b,
-        "C": agent_c,
-    })
+    mock_client = MockAgentDiscoveryClient(
+        {
+            "A": agent_a,
+            "B": agent_b,
+            "C": agent_c,
+        }
+    )
     client: Any = mock_client
 
     dag = await build_dependency_graph("A", client)
@@ -78,12 +80,14 @@ async def test_branching_dependency() -> None:
     agent_c = create_mock_agent("C", ["D"])
     agent_d = create_mock_agent("D", [])
 
-    mock_client = MockAgentDiscoveryClient({
-        "A": agent_a,
-        "B": agent_b,
-        "C": agent_c,
-        "D": agent_d,
-    })
+    mock_client = MockAgentDiscoveryClient(
+        {
+            "A": agent_a,
+            "B": agent_b,
+            "C": agent_c,
+            "D": agent_d,
+        }
+    )
     client: Any = mock_client
 
     dag = await build_dependency_graph("A", client)

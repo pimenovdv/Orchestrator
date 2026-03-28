@@ -73,13 +73,7 @@ class AgentDiscoveryClient:
         """
         Получает агента по его agent_id из OpenSearch.
         """
-        search_query = {
-            "query": {
-                "term": {
-                    "agent_id": agent_id
-                }
-            }
-        }
+        search_query = {"query": {"term": {"agent_id": agent_id}}}
         try:
             response = await self.opensearch.search(
                 index=self.index_name, body=search_query, size=1

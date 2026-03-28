@@ -38,7 +38,9 @@ async def build_dependency_graph(
 
         agent_doc = await client.get_agent_by_id(current_agent_id)
         if not agent_doc:
-            raise ValueError(f"Agent with ID '{current_agent_id}' not found in the registry.")
+            raise ValueError(
+                f"Agent with ID '{current_agent_id}' not found in the registry."
+            )
 
         dag[current_agent_id] = agent_doc
 
