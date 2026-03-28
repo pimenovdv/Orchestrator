@@ -2,7 +2,6 @@ from typing import Dict, Set
 
 from app.clients.agent_discovery import AgentDiscoveryClient
 from app.models.agent import AgentIndexDocument
-from app.orchestration.cycle_detection import detect_cycles
 
 
 async def build_dependency_graph(
@@ -48,7 +47,5 @@ async def build_dependency_graph(
         for dependency_id in agent_doc.dependencies:
             if dependency_id not in visited and dependency_id not in queue:
                 queue.append(dependency_id)
-
-    detect_cycles(dag)
 
     return dag
