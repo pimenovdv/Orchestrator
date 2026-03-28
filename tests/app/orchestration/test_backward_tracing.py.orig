@@ -5,7 +5,6 @@ from app.models.agent import AgentIndexDocument
 from app.models.manifest import AgentManifest, Prompts, ExecutionLimits
 from app.models.graph import MicroGraph
 from app.orchestration.backward_tracing import build_dependency_graph
-from app.orchestration.cycle_detection import DeadlockDetectedError
 
 
 def create_mock_agent(agent_id: str, dependencies: List[str]) -> AgentIndexDocument:
@@ -108,21 +107,3 @@ async def test_missing_dependency() -> None:
     with pytest.raises(ValueError) as exc:
         await build_dependency_graph("A", client)
     assert "Agent with ID 'B' not found" in str(exc.value)
-
-
-@pytest.mark.asyncio
-async def test_deadlock_detected() -> None:
-    """Тестирование ситуации, когда зависимости образуют цикл (A -> B -> A)."""
-    agent_a = create_mock_agent("A", ["B"])
-    agent_b = create_mock_agent("B", ["A"])
-
-    mock_client = MockAgentDiscoveryClient(
-        {
-            "A": agent_a,
-            "B": agent_b,
-        }
-    )
-    client: Any = mock_client
-
-    with pytest.raises(DeadlockDetectedError):
-        await build_dependency_graph("A", client)
