@@ -6,7 +6,9 @@ from app.models.manifest import AgentManifest, Prompts
 from app.models.graph import MicroGraph
 
 
-def create_mock_agent(agent_id: str, dependencies: Optional[List[str]] = None) -> AgentIndexDocument:
+def create_mock_agent(
+    agent_id: str, dependencies: Optional[List[str]] = None
+) -> AgentIndexDocument:
     return AgentIndexDocument(
         agent_id=agent_id,
         name=f"Test Agent {agent_id}",
@@ -29,11 +31,13 @@ def create_mock_agent(agent_id: str, dependencies: Optional[List[str]] = None) -
 
 def test_topological_sort_empty() -> None:
     from app.orchestration.topological_sort import topological_sort
+
     assert topological_sort({}) == []
 
 
 def test_topological_sort_independent_agents() -> None:
     from app.orchestration.topological_sort import topological_sort
+
     # Агенты без зависимостей могут выполняться параллельно (в одной волне)
     dag = {
         "agent_a": create_mock_agent("agent_a"),
@@ -48,6 +52,7 @@ def test_topological_sort_independent_agents() -> None:
 
 def test_topological_sort_linear() -> None:
     from app.orchestration.topological_sort import topological_sort
+
     # agent_c -> agent_b -> agent_a
     dag = {
         "agent_a": create_mock_agent("agent_a"),
@@ -61,6 +66,7 @@ def test_topological_sort_linear() -> None:
 
 def test_topological_sort_diamond() -> None:
     from app.orchestration.topological_sort import topological_sort
+
     # agent_d -> agent_b, agent_c
     # agent_b -> agent_a
     # agent_c -> agent_a
@@ -80,6 +86,7 @@ def test_topological_sort_diamond() -> None:
 
 def test_topological_sort_complex() -> None:
     from app.orchestration.topological_sort import topological_sort
+
     # agent_a -> None
     # agent_b -> None
     # agent_c -> agent_a
@@ -102,6 +109,7 @@ def test_topological_sort_complex() -> None:
 
 def test_topological_sort_missing_dependency() -> None:
     from app.orchestration.topological_sort import topological_sort
+
     dag = {
         "agent_a": create_mock_agent("agent_a", dependencies=["agent_b"]),
     }
@@ -112,6 +120,7 @@ def test_topological_sort_missing_dependency() -> None:
 
 def test_topological_sort_cycle() -> None:
     from app.orchestration.topological_sort import topological_sort
+
     # Внутренняя проверка на цикл должна срабатывать, если не поймали раньше
     dag = {
         "agent_a": create_mock_agent("agent_a", dependencies=["agent_b"]),
