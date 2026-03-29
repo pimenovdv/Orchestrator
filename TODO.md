@@ -44,7 +44,7 @@
   - `ExecuteAgentActivity`: вызов микро-исполнения.
     - *Вариант А (External Player)*: Отправка HTTP-запроса `POST /api/v1/player/execute` во внешний микросервис.
     - *Вариант Б (Embedded Player/LangGraph)*: Запуск изолированного графа LangGraph прямо внутри воркера на основе `AgentManifest`.
-- [ ] **4.2. Разработка Orchestrator Workflow**
+- [x] **4.2. Разработка Orchestrator Workflow**
   - Написать Workflow, который последовательно:
     1. Находит стартового агента.
     2. Строит DAG-план.

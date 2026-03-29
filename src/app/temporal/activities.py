@@ -21,7 +21,10 @@ async def discover_root_agent_activity(query: str) -> str:
     opensearch_url = os.getenv("OPENSEARCH_URL", "https://localhost:9200")
     client = AsyncOpenSearch(
         hosts=[opensearch_url],
-        http_auth=("admin", "admin"),  # default creds
+        http_auth=(
+            os.getenv("OPENSEARCH_USER", "admin"),
+            os.getenv("OPENSEARCH_PASSWORD", "admin"),
+        ),
         use_ssl=True,
         verify_certs=False,
         ssl_assert_hostname=False,
@@ -51,7 +54,10 @@ async def build_execution_plan_activity(target_agent_id: str) -> List[List[str]]
     opensearch_url = os.getenv("OPENSEARCH_URL", "https://localhost:9200")
     client = AsyncOpenSearch(
         hosts=[opensearch_url],
-        http_auth=("admin", "admin"),
+        http_auth=(
+            os.getenv("OPENSEARCH_USER", "admin"),
+            os.getenv("OPENSEARCH_PASSWORD", "admin"),
+        ),
         use_ssl=True,
         verify_certs=False,
         ssl_assert_hostname=False,
@@ -115,3 +121,32 @@ async def execute_agent_activity(request_dict: Dict[str, Any]) -> Dict[str, Any]
                 telemetry={},
             )
             return error_response.model_dump(mode="json")
+
+
+@activity.defn(name="GetAgentManifestActivity")
+async def get_agent_manifest_activity(agent_id: str) -> Dict[str, Any]:
+    """
+    Получает манифест агента из OpenSearch.
+    """
+    opensearch_url = os.getenv("OPENSEARCH_URL", "https://localhost:9200")
+    client = AsyncOpenSearch(
+        hosts=[opensearch_url],
+        http_auth=(
+            os.getenv("OPENSEARCH_USER", "admin"),
+            os.getenv("OPENSEARCH_PASSWORD", "admin"),
+        ),
+        use_ssl=True,
+        verify_certs=False,
+        ssl_assert_hostname=False,
+        ssl_show_warn=False,
+    )
+
+    try:
+        discovery_client = AgentDiscoveryClient(client)
+        document = await discovery_client.get_agent_by_id(agent_id)
+        if not document:
+            raise RuntimeError(f"Agent manifest not found for id: {agent_id}")
+
+        return document.manifest.model_dump(mode="json")
+    finally:
+        await client.close()
