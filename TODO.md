@@ -59,7 +59,7 @@
   - `POST /api/v1/orchestrator/dispatch` — прием неструктурированного запроса.
   - Парсинг контекста и запуск Temporal Workflow (`client.execute_workflow`).
   - Возврат `orchestration_job_id` пользователю.
-- [ ] **5.2. Эндпоинты статуса**
+- [x] **5.2. Эндпоинты статуса**
   - `GET /api/v1/orchestrator/jobs/{job_id}/status` — проверка статуса выполнения задачи в Temporal.
 
 ## Этап 6: Тестирование и стабилизация
