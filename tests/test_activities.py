@@ -9,11 +9,10 @@ from app.temporal.activities import (
     build_execution_plan_activity,
     execute_agent_activity,
 )
-from app.models.api import ExecuteResponse, ExecutionStatus
 
 
 @pytest.mark.asyncio
-async def test_discover_root_agent_activity():
+async def test_discover_root_agent_activity() -> None:
     activity_env = ActivityEnvironment()
 
     mock_response = MagicMock()
@@ -25,20 +24,27 @@ async def test_discover_root_agent_activity():
     mock_opensearch_client = MagicMock()
     mock_opensearch_client.close = AsyncMock()
 
-    with patch("app.temporal.activities.AsyncOpenSearch", return_value=mock_opensearch_client), \
-         patch("app.temporal.activities.AgentDiscoveryClient") as mock_client_class:
+    with (
+        patch(
+            "app.temporal.activities.AsyncOpenSearch",
+            return_value=mock_opensearch_client,
+        ),
+        patch("app.temporal.activities.AgentDiscoveryClient") as mock_client_class,
+    ):
 
         mock_instance = mock_client_class.return_value
         mock_instance.search_candidates = AsyncMock(return_value=mock_response)
 
         result = await activity_env.run(discover_root_agent_activity, "finance audit")
         assert result == "finance_auditor_v1"
-        mock_instance.search_candidates.assert_called_once_with("finance audit", top_k=1)
+        mock_instance.search_candidates.assert_called_once_with(
+            "finance audit", top_k=1
+        )
         mock_opensearch_client.close.assert_called_once()
 
 
 @pytest.mark.asyncio
-async def test_discover_root_agent_activity_not_found():
+async def test_discover_root_agent_activity_not_found() -> None:
     activity_env = ActivityEnvironment()
 
     mock_response = MagicMock()
@@ -47,8 +53,13 @@ async def test_discover_root_agent_activity_not_found():
     mock_opensearch_client = MagicMock()
     mock_opensearch_client.close = AsyncMock()
 
-    with patch("app.temporal.activities.AsyncOpenSearch", return_value=mock_opensearch_client), \
-         patch("app.temporal.activities.AgentDiscoveryClient") as mock_client_class:
+    with (
+        patch(
+            "app.temporal.activities.AsyncOpenSearch",
+            return_value=mock_opensearch_client,
+        ),
+        patch("app.temporal.activities.AgentDiscoveryClient") as mock_client_class,
+    ):
 
         mock_instance = mock_client_class.return_value
         mock_instance.search_candidates = AsyncMock(return_value=mock_response)
@@ -60,7 +71,7 @@ async def test_discover_root_agent_activity_not_found():
 
 
 @pytest.mark.asyncio
-async def test_build_execution_plan_activity():
+async def test_build_execution_plan_activity() -> None:
     activity_env = ActivityEnvironment()
 
     mock_dag = {
@@ -70,19 +81,22 @@ async def test_build_execution_plan_activity():
         "agent_d": MagicMock(dependencies=["agent_b", "agent_c"]),
     }
 
-    expected_waves = [
-        ["agent_a"],
-        ["agent_b", "agent_c"],
-        ["agent_d"]
-    ]
+    expected_waves = [["agent_a"], ["agent_b", "agent_c"], ["agent_d"]]
 
     mock_opensearch_client = MagicMock()
     mock_opensearch_client.close = AsyncMock()
 
-    with patch("app.temporal.activities.AsyncOpenSearch", return_value=mock_opensearch_client), \
-         patch("app.temporal.activities.AgentDiscoveryClient"), \
-         patch("app.temporal.activities.build_dependency_graph", new_callable=AsyncMock) as mock_build_dag, \
-         patch("app.temporal.activities.topological_sort") as mock_sort:
+    with (
+        patch(
+            "app.temporal.activities.AsyncOpenSearch",
+            return_value=mock_opensearch_client,
+        ),
+        patch("app.temporal.activities.AgentDiscoveryClient"),
+        patch(
+            "app.temporal.activities.build_dependency_graph", new_callable=AsyncMock
+        ) as mock_build_dag,
+        patch("app.temporal.activities.topological_sort") as mock_sort,
+    ):
 
         mock_build_dag.return_value = mock_dag
         mock_sort.return_value = expected_waves
@@ -97,7 +111,7 @@ async def test_build_execution_plan_activity():
 
 @pytest.mark.asyncio
 @respx.mock
-async def test_execute_agent_activity_success():
+async def test_execute_agent_activity_success() -> None:
     activity_env = ActivityEnvironment()
 
     request_dict = {
@@ -110,18 +124,18 @@ async def test_execute_agent_activity_success():
             "graph": {
                 "nodes": [{"id": "node1", "type": "reasoning", "name": "Start"}],
                 "edges": [],
-                "starting_node": "node1"
+                "starting_node": "node1",
             },
-            "execution_limits": {"max_tokens": 1000, "timeout_ms": 30000}
+            "execution_limits": {"max_tokens": 1000, "timeout_ms": 30000},
         },
         "input_context": {"query": "test"},
-        "execution_limits": {"max_tokens": 1000, "timeout_ms": 30000}
+        "execution_limits": {"max_tokens": 1000, "timeout_ms": 30000},
     }
 
     response_dict = {
         "status": "success",
         "output_data": {"result": "ok"},
-        "telemetry": {"tokens": 42}
+        "telemetry": {"tokens": 42},
     }
 
     respx.post("http://localhost:8001/api/v1/player/execute").mock(
@@ -137,7 +151,7 @@ async def test_execute_agent_activity_success():
 
 @pytest.mark.asyncio
 @respx.mock
-async def test_execute_agent_activity_error():
+async def test_execute_agent_activity_error() -> None:
     activity_env = ActivityEnvironment()
 
     request_dict = {
@@ -150,12 +164,12 @@ async def test_execute_agent_activity_error():
             "graph": {
                 "nodes": [{"id": "node1", "type": "reasoning", "name": "Start"}],
                 "edges": [],
-                "starting_node": "node1"
+                "starting_node": "node1",
             },
-            "execution_limits": {}
+            "execution_limits": {},
         },
         "input_context": {},
-        "execution_limits": {}
+        "execution_limits": {},
     }
 
     # Имитируем ошибку соединения

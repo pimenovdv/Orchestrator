@@ -21,16 +21,18 @@ async def discover_root_agent_activity(query: str) -> str:
     opensearch_url = os.getenv("OPENSEARCH_URL", "https://localhost:9200")
     client = AsyncOpenSearch(
         hosts=[opensearch_url],
-        http_auth=("admin", "admin"), # default creds
+        http_auth=("admin", "admin"),  # default creds
         use_ssl=True,
         verify_certs=False,
         ssl_assert_hostname=False,
-        ssl_show_warn=False
+        ssl_show_warn=False,
     )
 
     try:
         discovery_client = AgentDiscoveryClient(client)
-        response: RegistrySearchResponse = await discovery_client.search_candidates(query, top_k=1)
+        response: RegistrySearchResponse = await discovery_client.search_candidates(
+            query, top_k=1
+        )
 
         if not response.hits.hits:
             raise RuntimeError(f"No agents found for query: {query}")
@@ -53,7 +55,7 @@ async def build_execution_plan_activity(target_agent_id: str) -> List[List[str]]
         use_ssl=True,
         verify_certs=False,
         ssl_assert_hostname=False,
-        ssl_show_warn=False
+        ssl_show_warn=False,
     )
 
     try:
@@ -88,25 +90,28 @@ async def execute_agent_activity(request_dict: Dict[str, Any]) -> Dict[str, Any]
         try:
             response = await client.post(
                 endpoint,
-                json=request.model_dump(mode='json'),
+                json=request.model_dump(mode="json"),
                 timeout=request.execution_limits.timeout_ms / 1000.0,
             )
             response.raise_for_status()
 
             result = ExecuteResponse.model_validate(response.json())
-            return result.model_dump(mode='json')
+            return result.model_dump(mode="json")
 
         except httpx.HTTPStatusError as e:
             error_response = ExecuteResponse(
                 status=ExecutionStatus.ERROR,
                 output_data={"error": str(e), "details": e.response.text},
-                telemetry={}
+                telemetry={},
             )
-            return error_response.model_dump(mode='json')
+            return error_response.model_dump(mode="json")
         except httpx.RequestError as e:
             error_response = ExecuteResponse(
                 status=ExecutionStatus.ERROR,
-                output_data={"error": "Failed to connect to player service", "details": str(e)},
-                telemetry={}
+                output_data={
+                    "error": "Failed to connect to player service",
+                    "details": str(e),
+                },
+                telemetry={},
             )
-            return error_response.model_dump(mode='json')
+            return error_response.model_dump(mode="json")
