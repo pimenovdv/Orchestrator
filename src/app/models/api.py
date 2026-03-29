@@ -32,3 +32,13 @@ class ExecuteResponse(BaseModel):
     telemetry: Dict[str, Any] = Field(
         description="Телеметрия (потребленные токены, время выполнения и т.д.)"
     )
+
+
+class DispatchRequest(BaseModel):
+    query: str = Field(description="Неструктурированный запрос пользователя")
+
+
+class DispatchResponse(BaseModel):
+    orchestration_job_id: str = Field(
+        description="Идентификатор запущенного процесса оркестрации"
+    )
