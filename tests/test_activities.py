@@ -1,14 +1,33 @@
-import pytest
-import respx
-import httpx
-from unittest.mock import patch, AsyncMock, MagicMock
-from temporalio.testing import ActivityEnvironment
-
 from app.temporal.activities import (
     discover_root_agent_activity,
     build_execution_plan_activity,
     execute_agent_activity,
+    get_agent_manifest_activity,
 )
+from unittest.mock import AsyncMock
+from app.models.graph import MicroGraph
+from app.models.manifest import AgentManifest, Prompts
+from app.models.agent import AgentIndexDocument
+from unittest.mock import MagicMock, patch
+import pytest
+import respx
+import httpx
+from temporalio.testing import ActivityEnvironment
+
+
+@pytest.fixture
+def mock_opensearch() -> MagicMock:
+    mock = MagicMock()
+    mock.close = AsyncMock()
+    return mock
+
+
+@pytest.fixture
+def mock_discovery_client() -> MagicMock:
+    mock = MagicMock()
+    mock.search_candidates = AsyncMock()
+    mock.get_agent_by_id = AsyncMock()
+    return mock
 
 
 @pytest.mark.asyncio
@@ -182,3 +201,54 @@ async def test_execute_agent_activity_error() -> None:
     assert result["status"] == "error"
     assert "error" in result["output_data"]
     assert "Failed to connect" in result["output_data"]["error"]
+
+
+@pytest.mark.asyncio
+async def test_get_agent_manifest_activity_found(
+    mock_opensearch: MagicMock, mock_discovery_client: MagicMock
+) -> None:
+    mock_agent_doc = AgentIndexDocument(
+        agent_id="agent-123",
+        name="test_agent",
+        description="test",
+        manifest=AgentManifest(
+            input_schema={"type": "object", "properties": {}},
+            output_schema={"type": "object", "properties": {}},
+            prompts=Prompts(system_instructions="Test"),
+            tools=[],
+            graph=MicroGraph(nodes=[], edges=[]),
+        ),
+        dependencies=[],
+        capabilities_embedding=[0.1, 0.2, 0.3],
+    )
+    mock_discovery_client.get_agent_by_id.return_value = mock_agent_doc
+
+    with (
+        patch("app.temporal.activities.AsyncOpenSearch", return_value=mock_opensearch),
+        patch(
+            "app.temporal.activities.AgentDiscoveryClient",
+            return_value=mock_discovery_client,
+        ),
+    ):
+        result = await get_agent_manifest_activity("agent-123")
+        assert isinstance(result, dict)
+        assert result["prompts"]["system_instructions"] == "Test"
+
+
+@pytest.mark.asyncio
+async def test_get_agent_manifest_activity_not_found(
+    mock_opensearch: MagicMock, mock_discovery_client: MagicMock
+) -> None:
+    mock_discovery_client.get_agent_by_id.return_value = None
+
+    with (
+        patch("app.temporal.activities.AsyncOpenSearch", return_value=mock_opensearch),
+        patch(
+            "app.temporal.activities.AgentDiscoveryClient",
+            return_value=mock_discovery_client,
+        ),
+    ):
+        with pytest.raises(
+            RuntimeError, match="Agent manifest not found for id: agent-404"
+        ):
+            await get_agent_manifest_activity("agent-404")
