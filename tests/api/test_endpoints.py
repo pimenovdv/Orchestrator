@@ -100,7 +100,9 @@ async def test_get_orchestrator_job_status_not_found() -> None:
 
         # Make describe raise an RPCError simulating NOT_FOUND
         error_message = "Workflow execution not found"
-        rpc_error = RPCError(error_message, status=grpc.StatusCode.NOT_FOUND, raw_grpc_status=b"")
+        rpc_error = RPCError(
+            error_message, status=grpc.StatusCode.NOT_FOUND, raw_grpc_status=b""
+        )
 
         mock_handle.describe = AsyncMock(side_effect=rpc_error)
 

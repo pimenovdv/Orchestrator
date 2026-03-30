@@ -43,8 +43,16 @@ class DispatchResponse(BaseModel):
         description="Идентификатор запущенного процесса оркестрации"
     )
 
+
 class JobStatusResponse(BaseModel):
     job_id: str = Field(description="Идентификатор задачи оркестрации")
-    status: str = Field(description="Статус выполнения (RUNNING, COMPLETED, FAILED, CANCELED, TERMINATED, TIMED_OUT)")
-    result: Dict[str, Any] | None = Field(default=None, description="Результат выполнения задачи, если она завершена")
-    error: str | None = Field(default=None, description="Сообщение об ошибке, если задача завершилась неудачей")
+    status: str = Field(
+        description="Статус выполнения (RUNNING, COMPLETED, FAILED, CANCELED, TERMINATED, TIMED_OUT)"
+    )
+    result: Dict[str, Any] | None = Field(
+        default=None, description="Результат выполнения задачи, если она завершена"
+    )
+    error: str | None = Field(
+        default=None,
+        description="Сообщение об ошибке, если задача завершилась неудачей",
+    )

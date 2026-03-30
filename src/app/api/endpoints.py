@@ -70,7 +70,7 @@ async def get_orchestrator_job_status(job_id: str) -> JobStatusResponse:
         )
 
     try:
-        handle = client.get_workflow_handle(job_id) # This is synchronous
+        handle = client.get_workflow_handle(job_id)  # This is synchronous
         description = await handle.describe()
     except RPCError as e:
         # Handle case where workflow is not found (usually gRPC NOT_FOUND)
