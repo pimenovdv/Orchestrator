@@ -81,10 +81,10 @@ async def mock_execute_agent_activity(request_dict: Dict[str, Any]) -> Dict[str,
     initial_state: AgentState = {
         "input_context": input_context,
         "output": "",
-        "agent_id": agent_id_str
+        "agent_id": agent_id_str,
     }
 
-    final_state: Any = await app.ainvoke(initial_state) # type: ignore
+    final_state: Any = await app.ainvoke(initial_state)  # type: ignore
 
     return {
         "status": "success",
